@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<title>弹窗组件</title>
+	<style type="text/css">
+		/*自定义弹窗css*/
+		.jfMask{position: absolute;top: 0;left: 0;width: 100%;height: 100%;background: #000;opacity: 0.4;z-index: 998; display: none;}
+		.jfDialog-box{position: absolute;top:50%;left:50%;border-radius: 5px;z-index: 999;background: #fff; -webkit-transition: all .3s; -moz-transition: all .3s; -ms-transition: all .3s; -o-transition: all .3s; transition: all .3s; -webkit-transform: scale(0.4); -moz-transform: scale(0.4); -ms-transform: scale(0.4); -o-transform: scale(0.4); transform: scale(0.4); opacity: 0;}
+		.jfDialog-box.show{-webkit-transform: scale(1); -moz-transform: scale(1); -ms-transform: scale(1); -o-transform: scale(1); transform: scale(1); opacity: 1;}
+		.jfDialog-title{line-height: 40px;height:40px;text-align: center;font-size: 14px;color: #fff;background: #007def;position: relative;}
+		.jfDialog-close{position: absolute;right: 0;top: 0;width: 40px;cursor: pointer;font-size: 18px;}
+		.jfDialog-main iframe{border: 0;}
+		.jfDialog-btn{height: 40px; text-align: center; border-top: 1px solid #ccc; box-sizing: border-box;}
+		.jfDialog-btn a{display: inline-block; margin: 5px 10px 0; width: 80px; height: 30px; line-height: 30px; border-radius: 5px; color: #fff; text-decoration: none; font-size: 12px;}
+		.jfDialog-ok{background: #007def;}
+		.jfDialog-no{background: #ccc;}
+	</style>
+</head>
+<body>
+	<button data-url="iframe.html">签入</button>
+	
+	<script src="http://libs.baidu.com/jquery/1.11.3/jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("button").click(function(){
+				var myUrl = $(this).attr("data-url");
+				
+				//调用弹窗组件
+				$.Dialog({
+					url: myUrl,	//*** 弹窗iframe的url为必填 ***
+					width: "600",	//设置弹窗的宽度(默认为500px)
+					height: "300",	//设置弹窗的高度(默认为300px)
+					title: "签入对话框",		//设置弹窗标题(默认为：系统对话框)
+					okText: "签入",		//设置确定按钮文本(默认为：确定)
+					noText: "取消",		//设置取消按钮文本(默认为：取消)
+					okShow: true,		//设置确定按钮是否显示(默认为：显示按钮)
+					noShow: true,		//设置确定按钮是否显示(默认为：显示按钮)
+					okFun: function(){		//点击确定后回调
+						//动态调用关闭弹窗
+						//$.Dialog.hide();
+					},
+					noFun: function(){		//点击取消后回调
+						
+					}
+				})
+			});
+		});
+		
+	
+	
+		//弹窗组件封装
+		;(function($){
+			$.Dialog = function(options){
+				var _url = options.url;
+				var _width = options.width ? options.width : "500";
+				var _height = options.height ? options.height : "300";
+				var _title = options.title ? options.title : "系统对话框";
+				var _okText = options.okText ? options.okText : "确定";
+				var _noText = options.noText ? options.noText : "取消";
+				var _okShow = options.okShow || options.okShow == undefined ? true : false;
+				var _noShow = options.noShow || options.noShow == undefined ? true : false;
+				
+				var _html = '';
+					_html += '<div class="jfDialog-wrap">';
+						_html += '<div class="jfMask"></div>';
+						_html += '<div class="jfDialog-box" style="width:'+_width+'px;height:'+_height+'px;margin-left:'+(-_width / 2)+'px;margin-top:'+(-_height / 2)+'px;">';
+							_html += '<div class="jfDialog-title">';
+								_html += '<strong>'+_title+'</strong>';
+								_html += '<span class="jfDialog-close">x</span>';
+							_html += '</div>';
+							_html += '<div class="jfDialog-main" style="height:'+(_height - 80)+'px;"><iframe src="'+_url+'" width="100%" height="100%"></iframe></div>';
+							_html += '<div class="jfDialog-btn">';
+								_html += '<a href="javascript:;" class="jfDialog-ok">'+_okText+'</a>';
+								_html += '<a href="javascript:;" class="jfDialog-no">'+_noText+'</a>';
+							_html += '</div>';
+						_html += '</div>';
+					_html += '</div>';
+				
+				//显示弹窗
+				$(".jfDialog-wrap").remove();
+				$("body").append(_html);
+				$(".jfMask").fadeIn(300);
+				$(".jfDialog-box").addClass("show");
+				
+				//默认显示按钮
+				if(!_okShow){ $(".jfDialog-ok").hide(); };
+				if(!_noShow){ $(".jfDialog-no").hide(); };
+				
+				//关闭弹窗
+				$(".jfDialog-close,.jfDialog-no").on("click", function(){
+					$.Dialog.hide();
+					//有值则执行“取消”回调函数
+					if(options.noFun){
+						options.noFun();
+					}
+				});
+				
+				//确定回调
+				$(".jfDialog-ok").on("click", function(){
+					//有值则执行“确定”回调函数
+					if(options.okFun){
+						options.okFun();
+					}
+				});
+				
+			};
+			
+			//关闭弹窗方法
+			$.Dialog.hide = function(){
+				$(".jfMask").fadeOut(300);
+				$(".jfDialog-box").removeClass("show");
+			}
+		})(jQuery);
+		
+	</script>
+</body>
+</html>
